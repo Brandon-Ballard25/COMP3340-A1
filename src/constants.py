@@ -28,6 +28,10 @@ NUMERIC_COLUMNS = [
   "alcohol",
 ]
 
+STRING_COLUMNS = [
+  "quality"
+]
+
 NORMAL_RANGE = {
   "density": (0.9, 1.1)
 }

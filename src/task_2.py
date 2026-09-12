@@ -7,12 +7,19 @@ def remove_empty_rows(df):
   return df.dropna(how="all").copy()
 
 
-def strip_and_lowercase_columns(df):
+def strip_and_lowercase_column_names(df):
   df.columns = df.columns.str.strip().str.lower()
   return df
 
+def strip_and_lowercase_values(df, columns):
+  for column in columns:
+    df[column] = df[column].astype(str).str.strip().str.lower()
+
+  return df
+  
 
 def clean_quality_labels(df):
+
   corrections = {
     "medium": "medium",
     "meedium": "medium",
@@ -65,7 +72,8 @@ def clean_data(df):
 
   # Clean pipeline. 
   df = remove_empty_rows(df)
-  df = strip_and_lowercase_columns(df)
+  df = strip_and_lowercase_column_names(df)
+  df = strip_and_lowercase_values(df, STRING_COLUMNS)
   df = clean_quality_labels(df)
   df = convert_to_numeric(df, NUMERIC_COLUMNS)
   df = replace_negatives_with_nan(df, NON_NEGATIVE_COLUMNS)
