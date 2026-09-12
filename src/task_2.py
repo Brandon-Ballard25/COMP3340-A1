@@ -1,0 +1,113 @@
+import pandas as pd
+import numpy as np
+
+from src.constants import * 
+
+def remove_empty_rows(df):
+  return df.dropna(how="all").copy()
+
+
+def strip_and_lowercase_columns(df):
+  df.columns = df.columns.str.strip().str.lower()
+  return df
+
+
+def clean_quality_labels(df):
+  df["quality"] = (
+    df["quality"]
+    .astype("string")
+    .str.strip()
+    .str.lower()
+  )
+
+  quality_corrections = {
+    "medium": "medium",
+    "meedium": "medium",
+    "low": "low",
+    "high": "high",
+    "hhigh": "high",
+  }
+
+  df["quality"] = df["quality"].replace(quality_corrections)
+
+  return df
+
+
+def convert_to_numeric(df, columns):
+  for column in columns:
+    df[column] = pd.to_numeric(
+      df[column],
+      errors="coerce"
+    )
+
+  return df
+
+
+def replace_negatives_with_nan(df, columns):
+  for column in columns:
+    df.loc[df[column] < 0, column] = np.nan
+
+  return df
+
+
+def replace_out_of_bounds_with_nan(df, ranges):
+  for column, (min_val, max_val) in ranges.items():
+    df.loc[(df[column] < min_val) | (df[column] > max_val), column] = np.nan
+
+  return df
+
+
+def fill_missing_with_median(df, columns):
+  for column in columns:
+    median = df[column].median()
+    df[column] = df[column].fillna(median)
+
+  return df
+
+
+def clean_data(df):
+  # Print empty rows:
+  empty_rows = df.isna().all(axis=1).sum()
+  print("\nCompletely empty rows:", empty_rows)
+
+  # Clean pipeline. 
+  df = remove_empty_rows(df)
+  df = strip_and_lowercase_columns(df)
+  df = clean_quality_labels(df)
+  df = convert_to_numeric(df, NUMERIC_COLUMNS)
+  df = replace_negatives_with_nan(df, NON_NEGATIVE_COLUMNS)
+  df = replace_out_of_bounds_with_nan(df, NORMAL_RANGE)
+
+  print("\nNaN values after validation:")
+  print(df.isna().sum())
+
+  # Fill missing values with median for numeric columns
+  df = fill_missing_with_median(df, NUMERIC_COLUMNS)
+
+  # Duplicate rows check and removal
+  duplicate_count = df.duplicated().sum()
+  print("\nDuplicate rows found:", duplicate_count)
+  df = (df.drop_duplicates().reset_index(drop=True))
+
+  print("\n========== CLEANED DATA ==========")
+
+  print("Cleaned shape:", df.shape)
+
+  print("\nNaN values after cleaning:")
+  print(df.isna().sum())
+
+  print("\nNumeric data types:")
+  print(df[NUMERIC_COLUMNS].dtypes)
+
+
+  df.to_csv(CLEAN_FILE, index=False)
+  print(f"\nCleaned dataset saved to: {CLEAN_FILE}")
+
+
+def task_2(df):
+  print("\nTask 2: Data Cleaning")
+  clean_data(df)
+
+# additional thoughts"
+# - add all columns to NON_NEGATIVE_COLUMNS
+# - convert low, high, medium into numeric values.
