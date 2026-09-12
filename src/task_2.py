@@ -13,14 +13,7 @@ def strip_and_lowercase_columns(df):
 
 
 def clean_quality_labels(df):
-  df["quality"] = (
-    df["quality"]
-    .astype("string")
-    .str.strip()
-    .str.lower()
-  )
-
-  quality_corrections = {
+  corrections = {
     "medium": "medium",
     "meedium": "medium",
     "low": "low",
@@ -28,8 +21,8 @@ def clean_quality_labels(df):
     "hhigh": "high",
   }
 
-  df["quality"] = df["quality"].replace(quality_corrections)
-
+  df["quality"] = df["quality"].replace(corrections)
+  df["quality"] = df["quality"].replace(WINE_QUALITY_TO_NUM_MAPPING)
   return df
 
 
@@ -91,14 +84,11 @@ def clean_data(df):
 
   print("\n========== CLEANED DATA ==========")
 
-  print("Cleaned shape:", df.shape)
+  print("\nFirst 5 rows:")
+  print(df.head())
 
-  print("\nNaN values after cleaning:")
-  print(df.isna().sum())
-
-  print("\nNumeric data types:")
-  print(df[NUMERIC_COLUMNS].dtypes)
-
+  print("\nDescriptive statistics:")
+  print(df.describe(include="all"))
 
   df.to_csv(CLEAN_FILE, index=False)
   print(f"\nCleaned dataset saved to: {CLEAN_FILE}")

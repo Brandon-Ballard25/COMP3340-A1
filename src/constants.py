@@ -28,14 +28,6 @@ NUMERIC_COLUMNS = [
   "alcohol",
 ]
 
-NUMERIC_COLUMNS = [
-  "fixed_acidity",
-  "residual_sugar",
-  "free_sulfur_dioxide",
-  "density",
-  "alcohol",
-]
-
 NORMAL_RANGE = {
   "density": (0.9, 1.1)
 }
