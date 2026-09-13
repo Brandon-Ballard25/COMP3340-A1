@@ -82,20 +82,18 @@ def strip_and_lowercase_column_names(df):
 
 def strip_and_lowercase_values(df, columns):
   for column in columns:
-    df[column] = df[column].astype(str).str.strip().str.lower()
+    df[column] = (
+      df[column]
+      .astype("string")
+      .str.strip()
+      .str.lower()
+    )
 
   return df
   
 
 def clean_quality_labels(df):
-
-  corrections = {
-    "medium": "medium",
-    "meedium": "medium",
-    "low": "low",
-    "high": "high",
-    "hhigh": "high",
-  }
+  corrections = {"meedium": "medium", "hhigh": "high"}
 
   df["quality"] = df["quality"].replace(corrections)
   df["quality"] = df["quality"].replace(WINE_QUALITY_TO_NUM_MAPPING)
