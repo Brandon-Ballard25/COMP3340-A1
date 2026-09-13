@@ -179,6 +179,18 @@ def task_3(df):
 
 def task_4(df):
   print("\nTask 4: Feature Magnitudes and Scaling")
+  # Apply min-max normalization to numeric columns
+  df[NUMERIC_COLUMNS] = (
+    df[NUMERIC_COLUMNS] - df[NUMERIC_COLUMNS].min()
+  ) / (
+    df[NUMERIC_COLUMNS].max() - df[NUMERIC_COLUMNS].min())
+  
+  # Verify min and max values for all columns
+  for col in NUMERIC_COLUMNS:
+    if (df[col].max(),df[col].min()) != (1,0):
+      print("Error standardizing values")
+  print("Min-Max normalization applied to numeric data")
+  
 
 def task_5(df):
   print("\nTask 5: Feature Engineering")
