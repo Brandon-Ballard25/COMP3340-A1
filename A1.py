@@ -175,10 +175,10 @@ def task_2(df):
 def task_3(df):
   clean_df = pd.read_csv(CLEAN_FILE)
   print("\nTask 3: Exploratory Visualisation")
-  compare_df_columns_scatter(clean_df)
-  compare_attributes_per_quality(clean_df)
-  three_dimensional_graphs('alcohol','residual_sugar','quality', clean_df)
-  bar_graph_quality(clean_df)
+  #compare_df_columns_scatter(clean_df)
+  #compare_attributes_per_quality(clean_df)
+  #three_dimensional_graphs('alcohol','residual_sugar','quality', clean_df)
+  #bar_graph_quality(clean_df)
 
 '''
 Produces figures that show the values of each column
