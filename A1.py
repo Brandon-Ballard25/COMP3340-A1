@@ -100,7 +100,7 @@ def clean_quality_labels(df):
   corrections = {"meedium": "medium", "hhigh": "high"}
 
   df["quality"] = df["quality"].replace(corrections)
-  df["quality"] = df["quality"].replace(WINE_QUALITY_TO_NUM_MAPPING)
+  df["quality"] = df["quality"].astype("object").replace(WINE_QUALITY_TO_NUM_MAPPING)
   return df
 
 
