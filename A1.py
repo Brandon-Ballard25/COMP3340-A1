@@ -179,6 +179,7 @@ def task_3(df):
 
 def task_4(df):
   print("\nTask 4: Feature Magnitudes and Scaling")
+  
   # Apply min-max normalization to numeric columns
   df[NUMERIC_COLUMNS] = (
     df[NUMERIC_COLUMNS] - df[NUMERIC_COLUMNS].min()
