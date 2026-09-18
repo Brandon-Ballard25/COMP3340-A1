@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 
 from pathlib import Path
 
@@ -172,8 +173,126 @@ def task_2(df):
 
 
 def task_3(df):
+  clean_df = pd.read_csv(CLEAN_FILE)
   print("\nTask 3: Exploratory Visualisation")
+  compare_df_columns_scatter(clean_df)
+  compare_attributes_per_quality(clean_df)
+  three_dimensional_graphs('alcohol','residual_sugar','quality', clean_df)
+  bar_graph_quality(clean_df)
 
+'''
+Produces figures that show the values of each column
+for different qualities of wine
+'''
+def compare_attributes_per_quality(df):
+  #loop columns
+  for column in df.columns:
+      if column == "quality":
+        continue
+      #produce graph
+      bar_graph_quality_single_attribute(df, column)
+
+"""
+Groups data by the quality of wine, then calculates
+the mean values for each attribute within each wine
+quality and displays it as a bar graph
+"""
+def bar_graph_quality_single_attribute(df, column):
+    quality_labels = {
+      0: "Low",
+      1: "Medium",
+      2: "High"
+    }
+    quality_mean = df.groupby(['quality']).mean().rename(index=quality_labels)
+    
+    quality_mean[column].plot(kind='bar')
+    
+    plt.xlabel('Wine quality')
+    plt.ylabel(f'{column}')
+    plt.title('Mean chemistry of different wine qualities')
+    plt.show()
+
+
+"""
+Groups data by the quality of wine, then calculates
+the mean values for each attribute within each wine
+quality and displays it as a bar graph
+"""
+def bar_graph_quality(df):
+    quality_labels = {
+      0: "Low",
+      1: "Medium",
+      2: "High"
+    }
+    quality_mean = df.groupby(['quality']).mean().rename(index=quality_labels)
+    
+    quality_mean.plot(kind='bar')
+    
+    plt.xlabel('Wine attributes')
+    plt.ylabel('Attribute values')
+    plt.title('Mean chemistry of different wine qualities')
+    plt.show()
+
+'''
+x y z: column names for data that will be visualized
+df: dataframe
+produces a 3d scatter plot using provided data
+'''
+def three_dimensional_graphs(x,y,z, df):
+  fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+  ax.scatter(df[x], df[y],df[z])
+  ax.set_xlabel(x)
+  ax.set_ylabel(y)
+  ax.set_zlabel(z)
+  plt.tight_layout()
+  plt.show()
+
+"""
+compares columns to every other column within
+the dataset. produces a 2 column figure with multiple
+graphs for a comparison between features
+"""
+def compare_df_columns_scatter(df):
+  #determine the length of each column
+  df_len = len(df.columns)
+  if(df_len%2!= 0):
+    #maintains whole numbers for indexing
+    df_len += 1
+
+  #iterate over columns
+  for x_count, x in enumerate(df.columns):
+      fig, ax = plt.subplots((df_len//2),2)
+      fig_index = 0;
+      second_col = True
+      #iterate over columns to compare to previous column
+      for y_count, y in enumerate(df.columns,0):
+        
+        if y == x:
+          #dont produce graphs that compare the same column
+          continue
+        #decide which column of the figure to image
+        if(second_col):
+          #first column
+          ax[fig_index,0].scatter(df[x],df[y])
+          ax[fig_index,0].set_title(f"Wine chemistry {x.replace('_', " ")} vs {y.replace('_', " ")}")
+          ax[fig_index,0].set_xlabel(x)
+          ax[fig_index,0].set_ylabel(y)
+
+        else:
+          #second column
+          ax[fig_index,1].scatter(df[x],df[y])
+          ax[fig_index,1].set_title(f"Wine chemistry {x.replace('_', " ")} vs {y.replace('_', " ")}")
+          ax[fig_index,1].set_xlabel(x)
+          ax[fig_index,1].set_ylabel(y)
+
+        fig_index += 1
+        if fig_index == df_len/2:
+          fig_index = 0
+          second_col = not second_col
+  plt.suptitle(f'{y} vs remaining features')
+  
+  plt.tight_layout()
+  plt.show()
 
 def task_4(df):
   print("\nTask 4: Feature Magnitudes and Scaling")
