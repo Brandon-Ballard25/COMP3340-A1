@@ -182,17 +182,17 @@ def task_3(df):
 def task_4(df):
   print("\nTask 4: Feature Magnitudes and Scaling")
   
-  # Apply min-max normalization to numeric columns
+  # Apply z-score normalization to numeric columns
   df[NUMERIC_COLUMNS] = (
-    df[NUMERIC_COLUMNS] - df[NUMERIC_COLUMNS].min()
-  ) / (
-    df[NUMERIC_COLUMNS].max() - df[NUMERIC_COLUMNS].min())
+    df[NUMERIC_COLUMNS] - df[NUMERIC_COLUMNS].mean()
+) / df[NUMERIC_COLUMNS].std()
   
-  # Verify min and max values for all columns
+  # Verify mean and std values for all columns
   for col in NUMERIC_COLUMNS:
-    if (df[col].max(),df[col].min()) != (1,0):
+    print("Column: {}  Mean = {}  Std = {}".format(col,df[col].mean().round(2), df[col].std().round(2)))
+    if (df[col].mean().round(2),df[col].std().round(2)) != (0,1):
       print("Error standardizing values")
-  print("Min-Max normalization applied to numeric data")
+  print("Z-score normalization applied to numeric data")
   
 
 def task_5(df):
