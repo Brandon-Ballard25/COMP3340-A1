@@ -218,7 +218,7 @@ def task_3(df):
   #fix height spacing
   plt.subplots_adjust(hspace=0.5) 
   
-  plt.show()
+  plt.show(block=False)
 
 
 def task_4(df):
