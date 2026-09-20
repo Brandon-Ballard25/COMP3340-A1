@@ -174,9 +174,51 @@ def task_2(df):
   df.to_csv(CLEAN_FILE, index=False)
   print(f"\nCleaned dataset saved to: {CLEAN_FILE}")
 
+'''
+  stores a scatter plot with ax built with the
+  provided params
+  x: column for x a-xis
+  y: column for y y-xis
+  colors: color map
+  df: dataset
+  ax: container for figure
+'''
+def create_scatter_plot(x,y,colors,df,ax):
+  ax.scatter(df[x],df[y], c=colors)
+  ax.set_title(f"{x.replace('_', " ")} vs {y.replace('_', " ")}")
+  ax.set_xlabel(x.replace('_', " "))
+  ax.set_ylabel(y.replace('_', " "))
+  ax.set_ylim(bottom=None, top=df[y].max()*1.01)
 
 def task_3(df):
   print("\nTask 3: Exploratory Visualisation")
+
+  clean_df = pd.read_csv(CLEAN_FILE)  
+  color_map = {
+      0:'red',
+      1:'orange',
+      2:'green',
+    }
+  #create colour map
+  colors = [color_map[col] for col in clean_df['quality']]
+  _, ax = plt.subplots(2, 2)
+
+  #plot shows the relationship visualizes density and acidity
+  create_scatter_plot('density','fixed_acidity', {'blue'}, clean_df, ax[0,0])
+  #plot adds color depth to plot
+  create_scatter_plot('density','fixed_acidity', colors, clean_df, ax[0,1])
+  #plot shows a compressed data set
+  create_scatter_plot('alcohol','free_sulfur_dioxide', colors, clean_df, ax[1,0])
+
+  #rebuilds colormap for reduced data frame
+  colors = [color_map[col] for col in clean_df['quality'][clean_df['free_sulfur_dioxide'] < 100]]
+  #build scatter plot with no extreme values from sulfur
+  create_scatter_plot('alcohol','free_sulfur_dioxide', colors, clean_df[clean_df['free_sulfur_dioxide'] < 100], ax[1,1])
+  
+  #fix height spacing
+  plt.subplots_adjust(hspace=0.5) 
+  
+  plt.show(block=False)
 
 
 def task_4(df):
