@@ -174,6 +174,15 @@ def task_2(df):
   df.to_csv(CLEAN_FILE, index=False)
   print(f"\nCleaned dataset saved to: {CLEAN_FILE}")
 
+'''
+  stores a scatter plot with ax built with the
+  provided params
+  x: column for x a-xis
+  y: column for y y-xis
+  colors: color map
+  df: dataset
+  ax: container for figure
+'''
 def create_scatter_plot(x,y,colors,df,ax):
   ax.scatter(df[x],df[y], c=colors)
   ax.set_title(f"{x.replace('_', " ")} vs {y.replace('_', " ")}")
