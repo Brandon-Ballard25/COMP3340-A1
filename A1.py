@@ -2,7 +2,6 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 
 from pathlib import Path
@@ -173,6 +172,7 @@ def task_2(df):
 
   df.to_csv(CLEAN_FILE, index=False)
   print(f"\nCleaned dataset saved to: {CLEAN_FILE}")
+  return df
 
 '''
   stores a scatter plot with ax built with the
@@ -235,27 +235,23 @@ def task_4(df):
     if (df[col].mean().round(2),df[col].std().round(2)) != (0,1):
       print("Error standardizing values")
   print("Z-score normalization applied to numeric data")
+  return df
   
 
 def task_5(df):
   print("\nTask 5: Feature Engineering")
 
-  # PCA is applied to the cleaned numeric features, not to the quality label.
+  # PCA is applied to the cleaned & scaled numeric features, not quality label.
   X_wine = df[NUMERIC_COLUMNS] 
   y_wine = df["quality"]
-
-  # Standardise deez features b4 fitting PCA.
-  wine_scaler = StandardScaler()
-  wine_scaler.fit(X_wine)
-  X_wine_scaled = wine_scaler.transform(X_wine)
 
   # Fit PCA with all components so that the variance contribution of each
   # will let variance contrib be inspected for all components
   wine_pca = PCA(n_components=None)
-  wine_pca.fit(X_wine_scaled)
-  wine_scores = wine_pca.transform(X_wine_scaled)
+  wine_pca.fit(X_wine)
+  wine_scores = wine_pca.transform(X_wine)
 
-  print("Explained-variance ratio:", wine_pca.explained_variance_ratio_.round(4))
+  print("Explained-variance Ratio:", wine_pca.explained_variance_ratio_.round(4))
   print("Shape of the scores:", wine_scores.shape)
 
   # get all individual and cumulative contribs aswell
@@ -335,15 +331,15 @@ if __name__ == "__main__":
   task_1(df)
 
   # Cleaning methods and justification 
-  task_2(df)
+  clean_df = task_2(df)
 
   # Exploratory visualisation
   task_3(df)
 
   # Feature magnitudes and scaling
-  task_4(df)
+  scaled_df = task_4(clean_df.copy())
 
   # Feature Engineering
-  task_5(pd.read_csv(CLEAN_FILE))
+  task_5(scaled_df)
 
   print("All tasks completed.")
