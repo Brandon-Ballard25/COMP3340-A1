@@ -1,16 +1,25 @@
+# A1.py
+# Written by : Rory Hafey (C3053468), Brandon Ballard (Brandon Ballard)
+#              Brody Dunn (C3303896), Joe McIntyre (C3429578)
+# Modified : 25/09/2026
+# Assessment: COMP3340 Assignment 1
+# This file implements Data Engineering Tasks 1 to 5
+
+
+# Import relevant packages
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-
 from sklearn.decomposition import PCA
-
 from pathlib import Path
 
+
+# Define constants and mapping
 BASE_DIR = Path(__file__).resolve().parent
 
-RAW_FILE = BASE_DIR / "data" / "input" / "wine_data.csv"
-CLEAN_FILE = BASE_DIR / "data" / "output" / "wine_cleaned.csv"
-PCA_FILE = BASE_DIR / "data" / "output" / "wine_pca_transformed.csv"
+RAW_FILE = BASE_DIR / "wine_data.csv"
+CLEAN_FILE = BASE_DIR / "output" / "wine_cleaned.csv"
+PCA_FILE = BASE_DIR / "output" / "wine_pca_transformed.csv"
 
 WINE_QUALITY_TO_NUM_MAPPING = {
   "low": 0,
@@ -43,8 +52,7 @@ NORMAL_RANGE = {
 }
 
 
-# Task 1: Data Overview
-
+# Task 1: Data Overview - examing and describe the current state of the dataset
 def task_1(df):
   print("\nTask 1: Data Overview")
 
@@ -73,16 +81,18 @@ def task_1(df):
   print(df.duplicated().sum())
 
 
-# Task 2: Data Cleaning
-
+# Remove rows with null/NaN values
 def remove_empty_rows(df):
   return df.dropna(how="all").copy()
 
 
+# Columns: Remove trailing and leading white spaces and convert to lowercase for consistency
 def strip_and_lowercase_column_names(df):
   df.columns = df.columns.str.strip().str.lower()
   return df
 
+
+# Rows: Remove trailing and leading white spaces and convert to lowercase for consistency
 def strip_and_lowercase_values(df, columns):
   for column in columns:
     df[column] = (
@@ -91,10 +101,10 @@ def strip_and_lowercase_values(df, columns):
       .str.strip()
       .str.lower()
     )
-
   return df
   
 
+# Correct typos in quality labels
 def clean_quality_labels(df):
   corrections = {"meedium": "medium", "hhigh": "high"}
 
@@ -103,46 +113,47 @@ def clean_quality_labels(df):
   return df
 
 
+# Convert the values to the numeric type rather than generic objects
 def convert_to_numeric(df, columns):
   for column in columns:
     df[column] = pd.to_numeric(
       df[column],
       errors="coerce"
     )
-
   return df
 
 
+# Replace negative values with NaN for further processing
 def replace_negatives_with_nan(df, columns):
   for column in columns:
     df.loc[df[column] < 0, column] = np.nan
-
   return df
 
 
+# Replace impossible values with NaN for further processing
 def replace_out_of_bounds_with_nan(df, ranges):
   for column, (min_val, max_val) in ranges.items():
     df.loc[(df[column] < min_val) | (df[column] > max_val), column] = np.nan
-
   return df
 
 
+# Fill missing values with column medium, so they do not effect the result
 def fill_missing_with_median(df, columns):
   for column in columns:
     median = df[column].median()
     df[column] = df[column].fillna(median)
-
   return df
 
 
+# Task 2: Data Cleaning
 def task_2(df):
   print("\nTask 2: Data Cleaning")
 
-  # Print empty rows:
+  # Print empty rows
   empty_rows = df.isna().all(axis=1).sum()
   print("\nCompletely empty rows:", empty_rows)
 
-  # Clean pipeline. 
+  # Clean pipeline
   df = remove_empty_rows(df)
   df = strip_and_lowercase_column_names(df)
   df = strip_and_lowercase_values(df, STRING_COLUMNS)
@@ -174,15 +185,13 @@ def task_2(df):
   print(f"\nCleaned dataset saved to: {CLEAN_FILE}")
   return df
 
-'''
-  stores a scatter plot with ax built with the
-  provided params
-  x: column for x a-xis
-  y: column for y y-xis
-  colors: color map
-  df: dataset
-  ax: container for figure
-'''
+
+# Stores a scatter plot with ax built with the provided parameters
+# x: column for x a-xis
+# y: column for y y-xis
+# colors: color map
+# df: dataset
+# ax: container for figure
 def create_scatter_plot(x,y,colors,df,ax):
   ax.scatter(df[x],df[y], c=colors)
   ax.set_title(f"{x.replace('_', " ")} vs {y.replace('_', " ")}")
@@ -190,41 +199,44 @@ def create_scatter_plot(x,y,colors,df,ax):
   ax.set_ylabel(y.replace('_', " "))
   ax.set_ylim(bottom=None, top=df[y].max()*1.01)
 
-def task_3(df):
+
+# Task 3: Exploratory Visualisation
+def task_3(clean_df):
   print("\nTask 3: Exploratory Visualisation")
 
-  clean_df = pd.read_csv(CLEAN_FILE)  
   color_map = {
       0:'red',
       1:'orange',
       2:'green',
     }
-  #create colour map
+  # Create colour map
   colors = [color_map[col] for col in clean_df['quality']]
   _, ax = plt.subplots(2, 2)
 
-  #plot shows the relationship visualizes density and acidity
+  # Plot shows the relationship visualizes density and acidity
   create_scatter_plot('density','fixed_acidity', {'blue'}, clean_df, ax[0,0])
-  #plot adds color depth to plot
+  # Plot adds color depth to plot
   create_scatter_plot('density','fixed_acidity', colors, clean_df, ax[0,1])
-  #plot shows a compressed data set
+  # Plot shows a compressed data set
   create_scatter_plot('alcohol','free_sulfur_dioxide', colors, clean_df, ax[1,0])
 
-  #rebuilds colormap for reduced data frame
+  # Rebuilds colormap for reduced data frame
   colors = [color_map[col] for col in clean_df['quality'][clean_df['free_sulfur_dioxide'] < 100]]
-  #build scatter plot with no extreme values from sulfur
+  # Build scatter plot with no extreme values from sulfur
   create_scatter_plot('alcohol','free_sulfur_dioxide', colors, clean_df[clean_df['free_sulfur_dioxide'] < 100], ax[1,1])
   
-  #fix height spacing
+  # Adjust height spacing
   plt.subplots_adjust(hspace=0.5) 
-  
+
+  # Display the plots
   plt.show(block=False)
 
 
+# Task 4: Feature Magnitude and Scaling
 def task_4(df):
   print("\nTask 4: Feature Magnitudes and Scaling")
   
-  # Apply z-score normalization to numeric columns
+  # Apply z-score normalization to numeric columns using the equation
   df[NUMERIC_COLUMNS] = (
     df[NUMERIC_COLUMNS] - df[NUMERIC_COLUMNS].mean()
 ) / df[NUMERIC_COLUMNS].std()
@@ -234,19 +246,23 @@ def task_4(df):
     print("Column: {}  Mean = {}  Std = {}".format(col,df[col].mean().round(2), df[col].std().round(2)))
     if (df[col].mean().round(2),df[col].std().round(2)) != (0,1):
       print("Error standardizing values")
+
+  # Print the first 5 rows and confirmation
   print("Z-score normalization applied to numeric data")
+  print(df.head())
   return df
   
 
+# Task 5: Feature Engineering
 def task_5(df):
   print("\nTask 5: Feature Engineering")
 
-  # PCA is applied to the cleaned & scaled numeric features, not quality label.
+  # PCA is applied to the cleaned and scaled numeric features, not quality labels
   X_wine = df[NUMERIC_COLUMNS] 
   y_wine = df["quality"]
 
   # Fit PCA with all components so that the variance contribution of each
-  # will let variance contrib be inspected for all components
+  # will let variance contribution be inspected for all components
   wine_pca = PCA(n_components=None)
   wine_pca.fit(X_wine)
   wine_scores = wine_pca.transform(X_wine)
@@ -254,7 +270,7 @@ def task_5(df):
   print("Explained-variance Ratio:", wine_pca.explained_variance_ratio_.round(4))
   print("Shape of the scores:", wine_scores.shape)
 
-  # get all individual and cumulative contribs aswell
+  # Get all individual and cumulative contributions
   wine_individual = wine_pca.explained_variance_ratio_
   wine_cumulative = np.cumsum(wine_individual)
   component_numbers = np.arange(1, len(wine_individual) + 1)
@@ -278,7 +294,7 @@ def task_5(df):
     round(wine_cumulative[components_to_keep - 1], 4)
   )
 
-  # graphing stuff I grabbed from the tutorial
+  # Generate a graph of the component contributions
   plt.figure(figsize=(6, 4))
   plt.bar(component_numbers, wine_individual * 100, label="Individual")
   plt.plot(
@@ -299,8 +315,6 @@ def task_5(df):
               dpi=300,
               bbox_inches="tight")
   plt.close() 
-
-
   plt.show()
 
   # Keep the smallest number of components that reaches the 98% threshold.
@@ -317,10 +331,7 @@ def task_5(df):
   return df_pca
 
 
-# additional thoughts"
-# - add all columns to NON_NEGATIVE_COLUMNS
-# - convert low, high, medium into numeric values.
-
+# Main program flow, reading from the data file
 if __name__ == "__main__":
   df = pd.read_csv(RAW_FILE)
   CLEAN_FILE.parent.mkdir(parents=True, exist_ok=True)
@@ -334,7 +345,7 @@ if __name__ == "__main__":
   clean_df = task_2(df)
 
   # Exploratory visualisation
-  task_3(df)
+  task_3(clean_df.copy())
 
   # Feature magnitudes and scaling
   scaled_df = task_4(clean_df.copy())
