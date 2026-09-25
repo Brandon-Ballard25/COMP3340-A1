@@ -1,5 +1,5 @@
 # A1.py
-# Written by : Rory Hafey (C3053468), Brandon Ballard (Brandon Ballard)
+# Written by : Rory Hafey (C3053468), Brandon Ballard (C3429564)
 #              Brody Dunn (C3303896), Joe McIntyre (C3429578)
 # Modified : 25/09/2026
 # Assessment: COMP3340 Assignment 1
